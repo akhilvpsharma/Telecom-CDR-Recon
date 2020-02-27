@@ -1,0 +1,154 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  orderer.telecom.com:
+    container_name: orderer.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: orderer-base
+    volumes:
+        - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ../crypto-config/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.telecom.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+
+  peer0.org1.telecom.com:
+    container_name: peer0.telecom.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.org1.telecom.com
+      - CORE_PEER_ADDRESS=peer0.org1.telecom.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.telecom.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org1.telecom.com:7151
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.telecom.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org1.telecom.com/peers/peer0.org1.telecom.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org1.telecom.com/peers/peer0.org1.telecom.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org1.telecom.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+
+  peer1.org1.telecom.com:
+    container_name: peer1.org1.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.org1.telecom.com
+      - CORE_PEER_ADDRESS=peer1.org1.telecom.com:7151
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7151
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org1.telecom.com:7152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7152
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org1.telecom.com:7151
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org1.telecom.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org1.telecom.com/peers/peer1.org1.telecom.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org1.telecom.com/peers/peer1.org1.telecom.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.org1.telecom.com:/var/hyperledger/production
+
+    ports:
+      - 7151:7151
+
+  peer0.org2.telecom.com:
+    container_name: peer0.org2.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.org2.telecom.com
+      - CORE_PEER_ADDRESS=peer0.org2.telecom.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.telecom.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.telecom.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org2.telecom.com:8151
+      - CORE_PEER_LOCALMSPID=Org2MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org2.telecom.com/peers/peer0.org2.telecom.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org2.telecom.com/peers/peer0.org2.telecom.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org2.telecom.com:/var/hyperledger/production
+    ports:
+      - 8051:8051
+
+  peer1.org2.telecom.com:
+    container_name: peer1.org2.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.org2.telecom.com
+      - CORE_PEER_ADDRESS=peer1.org2.telecom.com:8151
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8151
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org2.telecom.com:8152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8152
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.telecom.com:8151
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.telecom.com:8051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org2.telecom.com/peers/peer1.org2.telecom.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org2.telecom.com/peers/peer1.org2.telecom.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.org2.telecom.com:/var/hyperledger/production
+    ports:
+      - 8151:8151
+
+  peer0.org3.telecom.com:
+    container_name: peer0.org3.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.org3.telecom.com
+      - CORE_PEER_ADDRESS=peer0.org3.telecom.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org3.telecom.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.telecom.com:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org3.telecom.com:9151
+      - CORE_PEER_LOCALMSPID=Org3MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org3.telecom.com/peers/peer0.org3.telecom.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org3.telecom.com/peers/peer0.org3.telecom.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org3.telecom.com:/var/hyperledger/production
+    ports:
+      - 9051:9051
+
+  peer1.org3.telecom.com:
+    container_name: peer1.org3.telecom.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.org3.telecom.com
+      - CORE_PEER_ADDRESS=peer1.org3.telecom.com:9151
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9151
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org3.telecom.com:9152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9152
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org3.telecom.com:9151
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.telecom.com:9051
+      - CORE_PEER_LOCALMSPID=Org3MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/org3.telecom.com/peers/peer1.org3.telecom.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/org3.telecom.com/peers/peer1.org3.telecom.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.org3.telecom.com:/var/hyperledger/production
+    ports:
+      - 9151:9151      

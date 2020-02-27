@@ -1,0 +1,54 @@
+./bin/configtxgen -profile TelecomOrdererGenesis -channelID telecom-sys-channel -outputBlock ./channel-artifacts/genesis.block
+
+export CHANNEL_NAME=org12channel
+./bin/configtxgen -profile Org12Channel -outputCreateChannelTx ./channel-artifacts/channel12.tx -channelID $CHANNEL_NAME
+./bin/configtxgen -profile Org12Channel -outputAnchorPeersUpdate ./channel-artifacts/channel12Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
+./bin/configtxgen -profile Org12Channel -outputAnchorPeersUpdate ./channel-artifacts/channel12Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP
+export CHANNEL_NAME=org13channel
+./bin/configtxgen -profile Org13Channel -outputCreateChannelTx ./channel-artifacts/channel13.tx -channelID $CHANNEL_NAME
+./bin/configtxgen -profile Org13Channel -outputAnchorPeersUpdate ./channel-artifacts/channel13Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org1MSP
+./bin/configtxgen -profile Org13Channel -outputAnchorPeersUpdate ./channel-artifacts/channel13Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org3MSP
+export CHANNEL_NAME=org23channel
+./bin/configtxgen -profile Org23Channel -outputCreateChannelTx ./channel-artifacts/channel23.tx -channelID $CHANNEL_NAME
+./bin/configtxgen -profile Org23Channel -outputAnchorPeersUpdate ./channel-artifacts/channel23Org1MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org2MSP
+./bin/configtxgen -profile Org23Channel -outputAnchorPeersUpdate ./channel-artifacts/channel23Org2MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org3MSP
+
+COMPOSE_PROJECT_NAME=net
+IMAGE_TAG=1.4
+SYS_CHANNEL=telecom-sys-channel
+
+#CLI
+
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.telecom.com/users/Admin@org1.telecom.com/msp
+CORE_PEER_ADDRESS=peer0.org1.telecom.com:7051
+CORE_PEER_LOCALMSPID="Org1MSP"
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.telecom.com/peers/peer0.org1.telecom.com/tls/ca.crt
+
+CHANNEL_NAME=org12channel
+
+peer channel create -o orderer.telecom.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel12.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem
+peer channel join -b org12channel.block
+
+CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.telecom.com/users/Admin@org2.telecom.com/msp
+CORE_PEER_ADDRESS=peer0.org2.telecom.com:8051
+CORE_PEER_LOCALMSPID="Org2MSP"
+CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.telecom.com/peers/peer0.org2.telecom.com/tls/ca.crt
+
+peer channel join -b org12channel.block
+
+
+peer channel update -o orderer.telecom.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel12Org1MSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem
+
+peer channel update -o orderer.telecom.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel12Org2MSPanchors.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem
+
+peer chaincode install -n mycc -v 1.0 -p github.com/chaincode/chaincode_telecom02/go/
+
+peer chaincode instantiate -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n mycc -v 1.0 -c '{"Args":["init","a", "100", "b","200"]}' -P "AND ('Org1MSP.peer','Org2MSP.peer')"
+peer chaincode instantiate -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -v 1.0 -c '{"Args":["init"]}' -P "OR ('Org1MSP.peer','Org2MSP.peer')"
+
+peer chaincode invoke -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -c '{"Args":["initMarble","marble1","blue","35","tom"]}'
+peer chaincode invoke -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -c '{"Args":["initMarble","marble2","red","50","tom"]}'
+peer chaincode invoke -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -c '{"Args":["initMarble","marble3","blue","70","tom"]}'
+peer chaincode invoke -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -c '{"Args":["transferMarble","marble2","jerry"]}'
+peer chaincode invoke -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -c '{"Args":["transferMarblesBasedOnColor","blue","jerry"]}'
+peer chaincode invoke -o orderer.telecom.com:7050 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/telecom.com/orderers/orderer.telecom.com/msp/tlscacerts/tlsca.telecom.com-cert.pem -C $CHANNEL_NAME -n marbles -c '{"Args":["delete","marble1"]}'
