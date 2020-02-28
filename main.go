@@ -1,73 +1,73 @@
 package main
 
 import (
-	// "fmt"
-	// "github.com/Telecom-CDR-Recon/blockchain"
-	// "os"
+	"fmt"
+	"github.com/Telecom-CDR-Recon/blockchain"
+	"os"
 )
 func main() {
 	// Definition of the Fabric SDK properties
-	// fSetupOrg1 := blockchain.FabricSetup{
-	// 	// Network parameters 
-	// 	OrdererID: "orderer.telecom.com",
+	fSetupOrg1 := blockchain.FabricSetup{
+		// Network parameters 
+		OrdererID: "orderer.telecom.com",
 
-	// 	// Channel parameters
-	// 	ChannelID:     "org12channel",
-	// 	ChannelConfig: os.Getenv("GOPATH") + "/src/github.com/Telecom-CDR-Recon/channel-artifacts/channel12.tx",
+		// Channel parameters
+		ChannelID:     "org12channel",
+		ChannelConfig: os.Getenv("GOPATH") + "/src/github.com/Telecom-CDR-Recon/channel-artifacts/channel12.tx",
 
-	// 	// Chaincode parameters
-	// 	ChainCodeID:     "cdr",
-	// 	ChaincodeGoPath: os.Getenv("GOPATH"),
-	// 	ChaincodePath:   "github.com/Telecom-CDR-Recon/chaincode/",
-	// 	OrgAdmin:        "Admin",
-	// 	OrgName:         "org1",
-	// 	ConfigFile:      "config.yaml",
+		// Chaincode parameters
+		ChainCodeID:     "cdrChaincode",
+		ChaincodeGoPath: os.Getenv("GOPATH"),
+		ChaincodePath:   "github.com/Telecom-CDR-Recon/chaincode/telecom_cdr/go",
+		OrgAdmin:        "Admin",
+		OrgName:         "org1",
+		ConfigFile:      "config.yaml",
 
-	// 	// User parameters
-	// 	UserName: "User1",
-	// }
+		// User parameters
+		UserName: "User1",
+	}
 
-	// fSetupOrg2 := blockchain.FabricSetup{
-	// 	// Network parameters 
-	// 	OrdererID: "orderer.telecom.com",
+	fSetupOrg2 := blockchain.FabricSetup{
+		// Network parameters 
+		OrdererID: "orderer.telecom.com",
 
-	// 	// Channel parameters
-	// 	ChannelID:     "org12channel",
-	// 	ChannelConfig: os.Getenv("GOPATH") + "/src/github.com/Telecom-CDR-Recon/channel-artifacts/channel12.tx",
+		// Channel parameters
+		ChannelID:     "org12channel",
+		ChannelConfig: os.Getenv("GOPATH") + "/src/github.com/Telecom-CDR-Recon/channel-artifacts/channel12.tx",
 
-	// 	ChainCodeID:     "cdr",
-	// 	ChaincodeGoPath: os.Getenv("GOPATH"),
-	// 	ChaincodePath:   "github.com/Telecom-CDR-Recon/chaincode/",
-	// 	OrgAdmin:        "Admin",
-	// 	OrgName:         "org2",
-	// 	ConfigFile:      "config.yaml",
+		ChainCodeID:     "cdrChaincode",
+		ChaincodeGoPath: os.Getenv("GOPATH"),
+		ChaincodePath:   "github.com/Telecom-CDR-Recon/chaincode/telecom_cdr/go",
+		OrgAdmin:        "Admin",
+		OrgName:         "org2",
+		ConfigFile:      "config.yaml",
 
-	// 	// User parameters
-	// 	UserName: "User1",
-	// }
+		// User parameters
+		UserName: "User1",
+	}
 
-	// fmt.Printf("\n-----------Initialization of ORG1 & Creating, Joining Org12 Channel-----------------\n")
-	// // Initialization of the Fabric SDK from the previously set properties
-	// err := fSetupMRF.Initialize()
-	// if err != nil {
-	// 	fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
-	// 	return
-	// }
+	fmt.Printf("\n-----------Initialization of ORG1 & Creating, Joining Org12 Channel-----------------\n")
+	// Initialization of the Fabric SDK from the previously set properties
+	err := fSetupOrg1.Initialize()
+	if err != nil {
+		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
+		return
+	}
 
-	// fmt.Printf("\n-----------Initialization of Gabriel ORG & \nJoining channel and Installing CC GabrielOrg-----------------\n")
-	// err = fSetupGabriel.JoinTheChannelAndInstallCC()
-	// if err != nil {
-	// 	fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
-	// 	return
-	// }
+	fmt.Printf("\n-----------Initialization of Gabriel ORG & \nJoining channel and Installing CC GabrielOrg-----------------\n")
+	err = fSetupOrg1.JoinTheChannelAndInstallCC()
+	if err != nil {
+		fmt.Printf("Unable to initialize the Fabric SDK: %v\n", err)
+		return
+	}
 
-	// fmt.Printf("\n-----------Install and instantiate CC by MRF ORG-----------------\n")
-	// // Install and instantiate the chaincode
-	// err = fSetupMRF.InstallAndInstantiateCC()
-	// if err != nil {
-	// 	fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
-	// 	return
-	// }
+	fmt.Printf("\n-----------Install and instantiate CC by MRF ORG-----------------\n")
+	// Install and instantiate the chaincode
+	err = fSetupOrg2.InstallAndInstantiateCC()
+	if err != nil {
+		fmt.Printf("Unable to install and instantiate the chaincode: %v\n", err)
+		return
+	}
 	
 	// fmt.Printf("\n-----------------------------CC Operations-----------------------------\n")
 
@@ -99,9 +99,8 @@ func main() {
 	// 	fmt.Printf("Response from the asset query: %s\n", response)
 	// }
 
-	// // Close SDK
+	// Close SDK
 	// defer fSetupMRF.CloseSDK()	
 	// defer fSetupGabriel.CloseSDK()
 	Serve()	
-
 }
